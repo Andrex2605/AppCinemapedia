@@ -28,7 +28,7 @@ class MovieMapper {
       adult: moviedb.adult,
       backdropPath: moviedb.backdropPath != '' 
       ? 'https://image.tmdb.org/t/p/w500${moviedb.backdropPath}'
-      : 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.elmundo.es%2Fcomo%2F2024%2F03%2F08%2F65ead9c0e9cf4a342c8b45b6.html&psig=AOvVaw1cZp-dWZieHkJhSZ7X1ly9&ust=1715019744498000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCIiI4seQ94UDFQAAAAAdAAAAABAE',
+      : 'https://pelisplay.one/templates/pelisplay/dleimages/no_image.jpg',
       genreIds: moviedb.genres.map((e) => e.name).toList(),
       id: moviedb.id,
       originalLanguage: moviedb.originalLanguage,
@@ -37,7 +37,7 @@ class MovieMapper {
       popularity: moviedb.popularity,
       posterPath: moviedb.posterPath != '' 
       ? 'https://image.tmdb.org/t/p/w500${moviedb.posterPath}'
-      : 'no-poster',
+      : 'https://pelisplay.one/templates/pelisplay/dleimages/no_image.jpg',
       releaseDate: moviedb.releaseDate,
       title: moviedb.title,
       video: moviedb.video,
