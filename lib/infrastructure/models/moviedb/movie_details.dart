@@ -167,7 +167,7 @@ class ProductionCompany {
     int id;
     String? logoPath;
     String name;
-    String originCountry;
+    String? originCountry;
 
     ProductionCompany({
         required this.id,

@@ -1,3 +1,5 @@
+import 'package:cinemapedia/config/helpers/human_format.dart';
+import 'package:cinemapedia/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
@@ -56,107 +58,100 @@ class _MovieDetails extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  movie.posterPath,
-                  width: size.width * 0.3,
-                ),
-              ),
-              const SizedBox(width: 10),
-              SizedBox(
-                width: (size.width - 50) * 0.7,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      movie.title,
-                      style: textStyles.titleLarge,
-                    ),
-                    Text(movie.overview)
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-
-        Padding(padding: const EdgeInsets.all(12),
-          child: Wrap(
-            children: [
-              ...movie.genreIds.map((gender) => Container(
-                margin: const EdgeInsets.only(right: 10),
-                child: Chip(label: Text(gender),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                
-              ))
-            ],
-          ),
-        ),
-        _ActorsByMovie(movieId: movie.id.toString()),
-        const SizedBox(height: 50),
-
+        _TitleAndOverview(movie:movie,size:size,textStyles:textStyles),
+        _Genres(movie:movie),
+        ActorsByMovie(movieId: movie.id.toString()),
+        SimilarMovies(movieId:movie.id)
       ],
     );
   }
 }
 
+class _Genres extends StatelessWidget {
+  const _Genres({
+    required this.movie,
+  });
 
-
-
-class _ActorsByMovie extends ConsumerWidget {
-  final String movieId;
-  const _ActorsByMovie({required this.movieId});
+  final Movie movie;
 
   @override
-  Widget build(BuildContext context,ref) {
-
-    final actorsByMovie = ref.watch(actorByMovieProvider);
-    if (actorsByMovie[movieId]==null){
-      return const Center(child: CircularProgressIndicator(strokeWidth: 2));
-    }
-
-    final actors = actorsByMovie[movieId];
-
-    return SizedBox(
-      height: 320,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: actors?.length,
-        itemBuilder: (context,index){
-          final actor = actors![index];
-
-          return Container(
-            padding: const EdgeInsets.all(12),
-            width: 135,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FadeIn(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(actor.profilePath,fit: BoxFit.cover,height: 180,width: 135,)
-                  ),
-                ),
-                const SizedBox(height: 5),
-
-                Text(actor.name,maxLines: 2),
-                Text(actor.character ?? '',maxLines: 2,style: const TextStyle(fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis)),
-
-              ]
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Wrap(
+        children: [
+          ...movie.genreIds.map((gender) => Container(
+            margin: const EdgeInsets.only( right: 10),
+            child: Chip(
+              label: Text( gender ),
+              shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(20)),
             ),
-          );
-        }
+          ))
+        ],
       ),
     );
   }
 }
+
+class _TitleAndOverview extends StatelessWidget {
+  const _TitleAndOverview({
+    required this.movie,
+    required this.size,
+    required this.textStyles,
+  });
+
+  final Movie movie;
+  final Size size;
+  final TextTheme textStyles;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric( horizontal: 8, vertical: 15),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Imagen
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.network(
+              movie.posterPath,
+              width: size.width * 0.3,
+            ),
+          ),
+          const SizedBox( width: 10 ),
+          // Descripción
+          SizedBox(
+            width: (size.width - 40) * 0.7,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text( movie.title, style: textStyles.titleLarge ),
+                Text( movie.overview ),
+
+                const SizedBox(height: 10),
+
+                MovieRating(voteAverage: movie.voteAverage),
+                
+                Row(
+                  children: [
+                    const Text('Estreno:',style: TextStyle(fontWeight: FontWeight.bold),),
+                    const SizedBox(width: 5,),
+                    Text(HumanFormats.shortData(movie.releaseDate))
+                  ],
+                )
+              ],
+            ),
+          )
+        ]
+      )
+    );
+  }
+}
+
+
+
+
 
 
 final isFavoriteProvider = FutureProvider.family.autoDispose((ref, int movieId){
@@ -171,13 +166,15 @@ class _CustomSliverAppBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavoriteFuture = ref.watch(isFavoriteProvider(movie.id));
     final size = MediaQuery.of(context).size;
+    final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
     return SliverAppBar(
       backgroundColor: Colors.black,
       expandedHeight: size.height * 0.7,
       foregroundColor: Colors.white,
       actions: [
-        IconButton(onPressed: (){
-          ref.watch(localStorageRepositoryProvider).toggleFavorite(movie);
+        IconButton(onPressed: () async{
+          // ref.watch(localStorageRepositoryProvider).toggleFavorite(movie);
+          await ref.read(favoriteMoviesProvider.notifier).toggleFavorite(movie);
 
           ref.invalidate(isFavoriteProvider(movie.id));
         }, 
@@ -192,12 +189,8 @@ class _CustomSliverAppBar extends ConsumerWidget {
       )
       ],
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        // title: Text(
-        //   movie.title,
-        //   style: const TextStyle(fontSize: 20),
-        //   textAlign: TextAlign.start,
-        // ),
+        titlePadding: const EdgeInsets.only(bottom: 0),
+        title: _CustomGradient(begin:Alignment.topCenter,end: Alignment.bottomCenter,stops: const [0.7,1.0], colors: [Colors.transparent,scaffoldBackgroundColor]),
         background: Stack(
           children: [
             SizedBox.expand(
@@ -209,9 +202,9 @@ class _CustomSliverAppBar extends ConsumerWidget {
                 },
               )
             ),
-            const _CustomGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, stops: [0.7,1.0], colors: [Colors.transparent,Colors.black87]),
-            const _CustomGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, stops: [0.0,0.3], colors: [Colors.black87,Colors.transparent]),
-            const _CustomGradient(begin: Alignment.topLeft, stops: [0.0,0.3], colors: [Colors.black87,Colors.transparent])
+            const _CustomGradient(begin: Alignment.topLeft, stops: [0.0,0.3], colors: [Colors.black87,Colors.transparent]),
+            const _CustomGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, stops: [0.0,0.2], colors: [Colors.black54,Colors.transparent]),
+      
           ],
         ),
       ),
