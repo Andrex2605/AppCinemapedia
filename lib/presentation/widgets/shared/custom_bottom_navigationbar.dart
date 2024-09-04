@@ -24,9 +24,12 @@ class CustomBottomNavigationBar
 
   @override
   Widget build(BuildContext context) {
+
+    final colors = Theme.of(context).colorScheme;
+
     return BottomNavigationBar(
-      
       elevation: 0,
+      selectedItemColor: colors.primary,
       currentIndex: currentIndex,
       onTap: (value) {
         onItemTap(context, value);
