@@ -5,7 +5,7 @@ class CustomBottomNavigationBar
  extends StatelessWidget {
 
   final int currentIndex;
-   CustomBottomNavigationBar
+   const CustomBottomNavigationBar
   ({super.key, required this.currentIndex});
 
   void onItemTap(BuildContext context, int index){
@@ -37,8 +37,8 @@ class CustomBottomNavigationBar
           label: 'Inicio'
         ),
         BottomNavigationBarItem(
-          icon:Icon( Icons.label_outline),
-          label: 'Categorias'
+          icon:Icon( Icons.thumbs_up_down_outlined),
+          label: 'Populares'
         ),
         BottomNavigationBarItem(
           icon:Icon( Icons.favorite_outline),
