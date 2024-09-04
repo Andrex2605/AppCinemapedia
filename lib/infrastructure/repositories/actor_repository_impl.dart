@@ -1,5 +1,5 @@
 import 'package:cinemapedia/domain/datasources/actors_datasource.dart';
-import 'package:cinemapedia/domain/entities/actors.dart';
+import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/repositories/actors_repositories.dart';
 
 

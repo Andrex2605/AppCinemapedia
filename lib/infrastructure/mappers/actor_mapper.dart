@@ -1,7 +1,7 @@
 
 
 
-import 'package:cinemapedia/domain/entities/actors.dart';
+import 'package:cinemapedia/domain/entities/actor.dart';
 
 class ActorMapper{
 
